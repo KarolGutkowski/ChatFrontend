@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import WebSocketService from './client';
 import { ChatMessage } from './ChatMessage';
+import { useUser } from './UserProvider';
 
 
 const initialMessages: ChatMessage[] = new Array<ChatMessage>();
 
 const App: React.FC = () => {
+  const {username} = useUser();
   const webSocketService = new WebSocketService();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
 
@@ -32,7 +34,7 @@ const App: React.FC = () => {
     e.preventDefault();
     const messageInput = document.getElementById("chat-message-input") as HTMLInputElement;
 
-    const message = new ChatMessage('Karol', messageInput.value);
+    const message = new ChatMessage(username, messageInput.value);
     webSocketService.sendMessage(message);
     messageInput.value = ''; // Clear input field after sending
   };
