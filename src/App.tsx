@@ -7,7 +7,7 @@ import { useUser } from './UserProvider';
 const initialMessages: ChatMessage[] = new Array<ChatMessage>();
 
 const App: React.FC = () => {
-  const {username} = useUser();
+  const { username, setUsername } = useUser(); 
   const webSocketService = new WebSocketService();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
 
@@ -39,8 +39,21 @@ const App: React.FC = () => {
     messageInput.value = ''; // Clear input field after sending
   };
 
+  const handleLogout = () => {
+    setUsername(''); // Clear the username in context
+    localStorage.removeItem('username'); // Remove the username from localStorage
+    window.location.href = '/'; // Redirect to the login page
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+      <button
+        onClick={handleLogout}
+        className="absolute top-4 right-4 px-4 py-2 bg-red-500 text-white rounded-md shadow-md hover:bg-red-600 transition duration-150"
+      >
+        Logout
+      </button>
+
       <form onSubmit={sendMessage} className="flex items-center space-x-4 mb-4 w-full max-w-md">
         <input
           type="text"
