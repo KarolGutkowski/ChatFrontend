@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 // Define the shape of the context state
 interface UserContextType {
@@ -11,7 +11,18 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 // Create a provider component
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [username, setUsername] = useState<string>('');
+  const [username, setUsername] = useState<string>(() => {
+    // Initialize from localStorage if available
+    const savedUsername = localStorage.getItem('username');
+    return savedUsername || '';
+  });
+
+  // Save username to localStorage when it changes
+  useEffect(() => {
+    if (username) {
+      localStorage.setItem('username', username);
+    }
+  }, [username]);
 
   return (
     <UserContext.Provider value={{ username, setUsername }}>
