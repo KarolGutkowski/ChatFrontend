@@ -1,8 +1,8 @@
 import {Client, IFrame, Message} from '@stomp/stompjs'
 import SockJS from "sockjs-client"
 import { ChatMessage } from './ChatMessage';
-
-const wsServerEndpoint: string = 'http://localhost:8080/gs-guide-websocket';
+import {MessageSentStatus} from './MessageSentStatus'
+const wsServerEndpoint: string = 'http://localhost:8080/ws';
 
 export default class WebSocketService {
 
@@ -10,7 +10,7 @@ export default class WebSocketService {
     private messageCallback?: (message: ChatMessage) => void;
 
     constructor() {
-        console.log("TEST");
+        console.log("creating WebSocket connection");
         this.client = new Client({
             webSocketFactory: () => new SockJS(wsServerEndpoint),
             reconnectDelay: 5000,
@@ -35,7 +35,7 @@ export default class WebSocketService {
         console.error('Additional details: ' + frame.body);
     };
 
-    public connect() {
+    public connect(){
         this.client.activate();
     }
 
@@ -51,11 +51,16 @@ export default class WebSocketService {
             this.messageCallback(chatMessage);
     };
 
-    public sendMessage(message: ChatMessage) {
-        this.client.publish({
-            destination: "/app/chat",
-            body: JSON.stringify(message)
-        })
+    public sendMessage(message: ChatMessage): MessageSentStatus {
+        if(this.client.connected) {
+            this.client.publish({
+                destination: "/app/chat",
+                body: JSON.stringify(message)
+            })
+            return MessageSentStatus.Success;
+        } 
+
+        return MessageSentStatus.Failure;
     }
 
 
